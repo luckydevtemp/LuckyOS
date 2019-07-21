@@ -1,0 +1,146 @@
+#===========================================================================
+# Este arquivo pertence ao Projeto do Sistema Operacional LuckyOS (LOS).
+# --------------------------------------------------------------------------
+# Copyright (C) 2013 - Luciano L. Goncalez
+# --------------------------------------------------------------------------
+# eMail : dev.lucianogoncalez@gmail.com
+# Home  : http://lucky-labs.blogspot.com.br
+# ==========================================================================
+# Este programa e software livre; voce pode redistribui-lo e/ou modifica-lo
+# sob os termos da Licenca Publica Geral GNU, conforme publicada pela Free
+# Software Foundation; na versao 2 da Licenca.
+#
+# Este programa e distribuido na expectativa de ser util, mas SEM QUALQUER
+# GARANTIA; sem mesmo a garantia implicita de COMERCIALIZACAO ou de
+# ADEQUACAO A QUALQUER PROPOSITO EM PARTICULAR. Consulte a Licenca Publica
+# Geral GNU para obter mais detalhes.
+#
+# Voce deve ter recebido uma copia da Licenca Publica Geral GNU junto com
+# este programa; se nao, escreva para a Free Software Foundation, Inc., 59
+# Temple Place, Suite 330, Boston, MA 02111-1307, USA. Ou acesse o site do
+# GNU e obtenha sua licenca: http://www.gnu.org/
+# ==========================================================================
+# Makefile (Kernel)
+# --------------------------------------------------------------------------
+#   Este é o arquivo de makefile, ele é responsavel pelas construção do
+# sistema.
+# --------------------------------------------------------------------------
+# Criado em: 18/07/2019
+# --------------------------------------------------------------------------
+# Uso:
+# > make
+# ------------------------------------------------------------------------
+# Executar: Arquivo de configuracao.
+#============================================================================
+
+
+# Variaveis usadas pelo NASM #
+ASSEMBLER_OPTIONS := -f elf32
+
+# Variaveis usadas no FPC #
+
+# Opcoes
+#
+# -n        - ignora arquivo de configuracao padrao
+# @fpc.cfg  - informa um arquivo de configuracao
+# -Xd       - ignora bibliotecas padrao (crosscompiler!)
+# -Aelf     - forca a sempre criar arquivos objetos formato elf
+# -Tlinux   - compila formato para linux (mais limpo)
+COMPILER_OPTIONS := -n @$(BUILD_DIR)/fpc.cfg -Xd -Aelf -Tlinux
+
+# Variaveis usadas pelo LINKER #
+LINKER_OPTIONS = -T $(BUILD_DIR)/ld.cfg -Map kernel.map
+
+
+# Simbolos definidos para compilação condicional de partes compartilhadas
+# entre o Kernel e aplicações
+COMPILER_SYMBOLS = -dKERNEL
+
+
+# Dependencias
+
+LIBS_DEPS = kernelmain drivers fpc-rtl systemlibs stdlibs kernellib driverslibs libs16
+
+
+LINKER_DEPS = kernel.o grosstty.o system.o sysutils.o syscalls.o errorsdef.o\
+  stdlib.o stdio.o consoleio.o debuginfo.o tinystrscanner.o\
+  kernellib.o systemcalls.o filesystem.o grosscrt.o bootbt32.o
+
+
+# Phony
+
+.PHONY: all build $(LIBS_DEPS)
+
+
+# Geral
+
+all: build
+
+build: $(LIBS_DEPS) kernel.bin
+
+
+# Kernel
+
+kwrap.o: kwrap.asm
+	$(ASSEMBLER) $(ASSEMBLER_OPTIONS) $^
+
+kernel.o: kernel.pas
+	$(COMPILER) $(COMPILER_OPTIONS) $(COMPILER_SYMBOLS) kernel.pas
+
+kernel.bin: kernel.o kwrap.o
+	$(LINKER) $(LINKER_OPTIONS) $(LINKER_DEPS)
+
+
+# Dependendias
+
+kernelmain:
+	ln -s $(MAIN_DIR)/src/kernel/config/fpc.cfg $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/kernel/config/ld.cfg $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/kernel/src/kwrap.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/kernel/src/kernel.pas $(BUILD_DIR)
+
+drivers:
+	ln -s $(MAIN_DIR)/src/drivers/grosstty/grosstty.pas $(BUILD_DIR)
+
+fpc-rtl:
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/system.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_external.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_generalh.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_integerh.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_shortstrh.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_pcharh.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_generalf.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_errormanagerf.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_shortstrf.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_general.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_integer.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_shortstr.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_pchar.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_errormanager.inc $(BUILD_DIR)
+
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/sysutils.pas $(BUILD_DIR)
+
+systemlibs:
+	ln -s $(MAIN_DIR)/src/libs/system/src/syscalls.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/system/src/syscallsdef.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/system/src/systemdef.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/system/src/errorsdef.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/system/src/ttysdef.pas $(BUILD_DIR)
+
+stdlibs:
+	ln -s $(MAIN_DIR)/src/libs/stdlibs/src/stdlib.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/stdlibs/src/stdio.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/stdlibs/src/consoleio.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/stdlibs/src/debuginfo.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/stdlibs/src/tinystrscanner.pas $(BUILD_DIR)
+
+kernellib:
+	ln -s $(MAIN_DIR)/src/libs/kernel/src/kernellib.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/kernel/src/systemcalls.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/kernel/src/filesystem.pas $(BUILD_DIR)
+
+driverslibs:
+	ln -s $(MAIN_DIR)/src/libs/drivers/grosscrt/grosscrt.pas $(BUILD_DIR)
+
+libs16:
+	ln -s $(MAIN_DIR)/src/libs/libs16/src/bootbt32.pas $(BUILD_DIR)
