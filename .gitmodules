@@ -1,0 +1,27 @@
+[submodule "src/libs/libs16"]
+	path = src/libs/libs16
+	url = https://github.com/luckyosproject/los-libs16.git
+[submodule "src/loadlos"]
+	path = src/loadlos
+	url = https://github.com/luckyosproject/loadlos.git
+[submodule "src/libs/fpc-rtl"]
+	path = src/libs/fpc-rtl
+	url = https://github.com/luckyosproject/los-fpc-rtl.git
+[submodule "src/libs/stdlibs"]
+	path = src/libs/stdlibs
+	url = https://github.com/luckyosproject/los-stdlibs.git
+[submodule "src/libs/system"]
+	path = src/libs/system
+	url = https://github.com/luckyosproject/los-systemlibs.git
+[submodule "src/libs/drivers"]
+	path = src/libs/drivers
+	url = https://github.com/luckyosproject/los-driverslibs.git
+[submodule "src/libs/kernel"]
+	path = src/libs/kernel
+	url = https://github.com/luckyosproject/los-kernellibs.git
+[submodule "src/drivers"]
+	path = src/drivers
+	url = https://github.com/luckyosproject/los-drivers.git
+[submodule "src/kernel"]
+	path = src/kernel
+	url = https://github.com/luckyosproject/los-kernel.git
