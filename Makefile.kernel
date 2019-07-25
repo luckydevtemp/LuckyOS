@@ -59,12 +59,12 @@ COMPILER_SYMBOLS = -dKERNEL
 
 # Dependencias
 
-LIBS_DEPS = kernelmain drivers fpc-rtl systemlibs stdlibs kernellib driverslibs libs16
+LIBS_DEPS = kernelmain drivers fpc-rtl systemlibs stdlibs corelibs driverslibs libs16
 
 
 LINKER_DEPS = kernel.o grosstty.o system.o sysutils.o syscalls.o errorsdef.o\
   stdlib.o stdio.o consoleio.o debuginfo.o tinystrscanner.o\
-  kernellib.o systemcalls.o filesystem.o grosscrt.o bootbt32.o
+  corelib.o systemcalls.o filesystem.o grosscrt.o bootbt32.o
 
 
 # Phony
@@ -134,10 +134,10 @@ stdlibs:
 	ln -s $(MAIN_DIR)/src/libs/stdlibs/src/debuginfo.pas $(BUILD_DIR)
 	ln -s $(MAIN_DIR)/src/libs/stdlibs/src/tinystrscanner.pas $(BUILD_DIR)
 
-kernellib:
-	ln -s $(MAIN_DIR)/src/libs/kernel/src/kernellib.pas $(BUILD_DIR)
-	ln -s $(MAIN_DIR)/src/libs/kernel/src/systemcalls.pas $(BUILD_DIR)
-	ln -s $(MAIN_DIR)/src/libs/kernel/src/filesystem.pas $(BUILD_DIR)
+corelibs:
+	ln -s $(MAIN_DIR)/src/libs/core/src/corelib.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/core/src/systemcalls.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/core/src/filesystem.pas $(BUILD_DIR)
 
 driverslibs:
 	ln -s $(MAIN_DIR)/src/libs/drivers/grosscrt/grosscrt.pas $(BUILD_DIR)
