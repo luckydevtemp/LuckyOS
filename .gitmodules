@@ -25,3 +25,6 @@
 [submodule "src/libs/core"]
 	path = src/libs/core
 	url = https://github.com/luckyosproject/los-corelibs.git
+[submodule "src/bootloader"]
+	path = src/bootloader
+	url = https://github.com/luckyosproject/los-loader.git
