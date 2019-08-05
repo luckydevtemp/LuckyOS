@@ -51,6 +51,7 @@ export ASSEMBLER COMPILER LINKER
 
 MAIN_DIR := $(CURDIR)
 BUILD_DIR := $(MAIN_DIR)/build
+IMGTEMP_DIR := $(MAIN_DIR)/imgtmp
 
 export MAIN_DIR BUILD_DIR
 
@@ -99,30 +100,83 @@ linker_error:
 endif
 
 
+STAGE1_SECTORS = 1
+RESERVED_SECTORS = 2
+
+export STAGE1_SECTORS
+
+
 # Phony
 
-.PHONY: all clean distclean kernel _build
+.PHONY: all clean distclean submodules _FORCE install_boot install_vbr \
+        install_stage1 bootloader install_kernel kernel _build _imagetemp
 
 
 # Geral
 
-all: submodules kernel
+all:
+	@echo "\n### BOOTLOADER ###\n"
+	@$(MAKE) install_boot
+	@echo "\n### KERNEL ###\n"
+	@$(MAKE) install_kernel
 
 clean:
 	rm -rf $(BUILD_DIR)/*
 
 distclean: clean
+	-sudo umount $(IMGTEMP_DIR)
+	-rmdir $(IMGTEMP_DIR)
 	-rmdir $(BUILD_DIR)
-	-rm *.bin *.map
+	-rm *.img *.bin *.map
 
 submodules:
 	git submodule init
 	git submodule update
 
 
+_FORCE:
+
+
+# Bootloader
+
+boot.img: _FORCE
+	@echo "\n### Criando Imagem de Disco ###\n"
+	dd if=/dev/zero of=$(MAIN_DIR)/boot.img bs=512 count=2880
+	mkfs -t fat -R $(RESERVED_SECTORS) -n LOSBOOTDISK $(MAIN_DIR)/boot.img
+
+
+install_boot : install_vbr install_stage1
+
+install_vbr: bootloader boot.img
+	@echo "\n### Instalando VBR ###\n"
+	cp $(MAIN_DIR)/stage0.bin $(MAIN_DIR)/temp.img
+	dd if=$(MAIN_DIR)/boot.img of=$(MAIN_DIR)/temp.img bs=1 skip=11 seek=11 count=51 conv=notrunc
+	dd if=$(MAIN_DIR)/temp.img of=$(MAIN_DIR)/boot.img bs=512 count=1 conv=notrunc
+	rm temp.img
+
+install_stage1: bootloader boot.img
+	@echo "\n### Instalando STAGE 1 ###\n"
+	dd if=$(MAIN_DIR)/stage1.bin of=$(MAIN_DIR)/boot.img bs=512 seek=1 count=$(STAGE1_SECTORS) conv=notrunc
+
+
+bootloader: submodules _build
+	@echo "\n### Compilando BOOTLOADER ###\n"
+	ln -s $(MAIN_DIR)/Makefile.bootloader -T $(BUILD_DIR)/Makefile
+	@$(MAKE) -C $(BUILD_DIR)
+	cp $(BUILD_DIR)/stage0.bin .
+	cp $(BUILD_DIR)/stage1.bin .
+
+
 # Kernel
 
-kernel: _build
+install_kernel: kernel _imagetemp
+	@echo "\n### Instalando KERNEL ###\n"
+	sudo cp	kernel.bin $(IMGTEMP_DIR)
+	sudo umount $(IMGTEMP_DIR)
+
+
+kernel: submodules _build
+	@echo "\n### Compilando KERNEL ###\n"
 	ln -s $(MAIN_DIR)/Makefile.kernel -T $(BUILD_DIR)/Makefile
 	@$(MAKE) -C $(BUILD_DIR)
 	cp $(BUILD_DIR)/kernel.bin .
@@ -133,3 +187,9 @@ kernel: _build
 
 _build: clean
 	-mkdir $(BUILD_DIR)
+
+_imagetemp:
+	@echo "\n### Montando Imagem de Disco ###\n"
+	-sudo umount $(IMGTEMP_DIR)
+	-mkdir $(IMGTEMP_DIR)
+	sudo mount boot.img $(IMGTEMP_DIR)

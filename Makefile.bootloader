@@ -1,0 +1,80 @@
+#===========================================================================
+# Este arquivo pertence ao Projeto do Sistema Operacional LuckyOS (LOS).
+# --------------------------------------------------------------------------
+# Copyright (C) 2013 - Luciano L. Goncalez
+# --------------------------------------------------------------------------
+# eMail : dev.lucianogoncalez@gmail.com
+# Home  : http://lucky-labs.blogspot.com.br
+# ==========================================================================
+# Este programa e software livre; voce pode redistribui-lo e/ou modifica-lo
+# sob os termos da Licenca Publica Geral GNU, conforme publicada pela Free
+# Software Foundation; na versao 2 da Licenca.
+#
+# Este programa e distribuido na expectativa de ser util, mas SEM QUALQUER
+# GARANTIA; sem mesmo a garantia implicita de COMERCIALIZACAO ou de
+# ADEQUACAO A QUALQUER PROPOSITO EM PARTICULAR. Consulte a Licenca Publica
+# Geral GNU para obter mais detalhes.
+#
+# Voce deve ter recebido uma copia da Licenca Publica Geral GNU junto com
+# este programa; se nao, escreva para a Free Software Foundation, Inc., 59
+# Temple Place, Suite 330, Boston, MA 02111-1307, USA. Ou acesse o site do
+# GNU e obtenha sua licenca: http://www.gnu.org/
+# ==========================================================================
+# Makefile (Bootloader)
+# --------------------------------------------------------------------------
+#   Este é o arquivo de makefile, ele é responsavel pelas construção do
+# bootloader.
+# --------------------------------------------------------------------------
+# Criado em: 04/08/2019
+# --------------------------------------------------------------------------
+# Uso:
+# > make
+# ------------------------------------------------------------------------
+# Executar: Arquivo de configuracao.
+#============================================================================
+
+
+
+# Variaveis usadas pelo NASM #
+STAGE0_SOURCE := vbr-fat.asm
+STAGE1_SOURCE := stage1.asm
+
+STAGE0_OPTIONS := -f bin -o stage0.bin -d STAGE1_SECTORS=1
+STAGE1_OPTIONS := -f bin -o stage1.bin -d STAGE1_SECTORS=1
+
+
+# Phony
+
+.PHONY: all stage0 stage1 _common_files _stage0_files _stage1_files
+
+
+# Geral
+
+all: stage0 stage1
+
+
+# Estagios
+
+stage0: _stage0_files
+	ln -s $(MAIN_DIR)/src/bootloader/src/$(STAGE0_SOURCE) $(BUILD_DIR)
+	$(ASSEMBLER) $(STAGE0_OPTIONS) $(STAGE0_SOURCE)
+
+stage1: _stage1_files
+	ln -s $(MAIN_DIR)/src/bootloader/src/$(STAGE1_SOURCE) $(BUILD_DIR)
+	$(ASSEMBLER) $(STAGE1_OPTIONS) $(STAGE1_SOURCE)
+
+
+# Internos
+
+_common_files:
+	ln -s $(MAIN_DIR)/src/bootloader/src/inc/writeastr-inc.asm $(BUILD_DIR)
+
+_stage0_files: _common_files
+	ln -s $(MAIN_DIR)/src/bootloader/src/inc/losboot_sig-inc.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/inc/diskinfo-inc.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/inc/resetdisk-inc.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/inc/lba2chs-inc.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/inc/readlba-inc.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/inc/readchs-inc.asm $(BUILD_DIR)
+
+_stage1_files: _common_files
