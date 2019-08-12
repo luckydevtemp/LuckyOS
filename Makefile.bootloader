@@ -39,8 +39,8 @@
 STAGE0_SOURCE := vbr-fat.asm
 STAGE1_SOURCE := stage1.asm
 
-STAGE0_OPTIONS := -f bin -o stage0.bin -d STAGE1_SECTORS=1
-STAGE1_OPTIONS := -f bin -o stage1.bin -d STAGE1_SECTORS=1
+STAGE0_OPTIONS := -f bin -o stage0.bin -d STAGE1_SECTORS=$(STAGE1_SECTORS)
+STAGE1_OPTIONS := -f bin -o stage1.bin -d STAGE1_SECTORS=$(STAGE1_SECTORS)
 
 
 # Phony
@@ -62,6 +62,13 @@ stage0: _stage0_files
 stage1: _stage1_files
 	ln -s $(MAIN_DIR)/src/bootloader/src/$(STAGE1_SOURCE) $(BUILD_DIR)
 	$(ASSEMBLER) $(STAGE1_OPTIONS) $(STAGE1_SOURCE)
+	$(ASSEMBLER) $(STAGE1_OPTIONS) -d CRC_32=0x$$(crc32 stage1.bin) $(STAGE1_SOURCE)
+
+
+
+
+
+
 
 
 # Internos
@@ -78,3 +85,6 @@ _stage0_files: _common_files
 	ln -s $(MAIN_DIR)/src/bootloader/src/inc/readchs-inc.asm $(BUILD_DIR)
 
 _stage1_files: _common_files
+	ln -s $(MAIN_DIR)/src/bootloader/src/calccrc32-inc.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/deteccpu-inc.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/writeuint32-inc.asm $(BUILD_DIR)
