@@ -89,3 +89,4 @@ _stage1_files: _common_files
 	ln -s $(MAIN_DIR)/src/bootloader/src/deteccpu-inc.asm $(BUILD_DIR)
 	ln -s $(MAIN_DIR)/src/bootloader/src/writeuint32-inc.asm $(BUILD_DIR)
 	ln -s $(MAIN_DIR)/src/bootloader/src/temp/writewhex-inc.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/temp/initdiskinfo-inc.asm $(BUILD_DIR)
