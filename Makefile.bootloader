@@ -75,14 +75,14 @@ stage1: _stage1_files
 
 _common_files:
 	ln -s $(MAIN_DIR)/src/bootloader/src/inc/writeastr-inc.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/inc/readlba-inc.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/inc/lba2chs-inc.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/inc/readchs-inc.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/inc/resetdisk-inc.asm $(BUILD_DIR)
 
 _stage0_files: _common_files
 	ln -s $(MAIN_DIR)/src/bootloader/src/inc/losboot_sig-inc.asm $(BUILD_DIR)
 	ln -s $(MAIN_DIR)/src/bootloader/src/inc/diskinfo-inc.asm $(BUILD_DIR)
-	ln -s $(MAIN_DIR)/src/bootloader/src/inc/resetdisk-inc.asm $(BUILD_DIR)
-	ln -s $(MAIN_DIR)/src/bootloader/src/inc/lba2chs-inc.asm $(BUILD_DIR)
-	ln -s $(MAIN_DIR)/src/bootloader/src/inc/readlba-inc.asm $(BUILD_DIR)
-	ln -s $(MAIN_DIR)/src/bootloader/src/inc/readchs-inc.asm $(BUILD_DIR)
 
 _stage1_files: _common_files
 	ln -s $(MAIN_DIR)/src/bootloader/src/calccrc32-inc.asm $(BUILD_DIR)
