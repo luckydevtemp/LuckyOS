@@ -1,0 +1,14 @@
+Enfim terminei uma parte do bootloader. Está pronto somente uma das três partes (por isso ainda está no branch DEV), o Stage 0.
+
+    O  Stage 0 é o VBR, com 512 bytes de tamanho, responsável unicamente por carregar o Stage 1 para a memória. Além disso ele faz uma verificação de assinatura do Stage 1 antes de saltar para o mesmo.
+
+
+    O Stage 1, que poderá ter até 64kB de tamanho e será responsável por organizar a memória inferior, configurar o modo protegido 32-bits mínimo, carregar o Stage 2 para memória (que é 32-bits) e em seguida passar controle a ele. O Stage 1 ficará na área reservada da partição, logo após o VBR.
+
+
+    O Stage 2, será em 32-bits PM e será o Boot Manager do sistema, podendo executar diversas funções antes de passar o comando ao Kernel. O mesmo terá capacidade de voltar ao modo real para obter informações do BIOS. Será responsável por configurar a paginação, de modo a carregar um kernel tipo "Higher Half Kernel", também poderá carregar tanto kernels 32 quanto 64 bits.
+
+
+Como eu disse, é apenas uma das três partes do bootloader, mas já está bem encaminhado. Na verdade as duas outras partes já tenho um rascunho aqui, só falta montar...
+
+
