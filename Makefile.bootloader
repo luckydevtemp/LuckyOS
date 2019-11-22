@@ -96,3 +96,4 @@ _stage1_files: _common_files
 	ln -s $(MAIN_DIR)/src/bootloader/src/fatbpb-inc.asm $(BUILD_DIR)
 	ln -s $(MAIN_DIR)/src/bootloader/src/initpartinfo-inc.asm $(BUILD_DIR)
 	ln -s $(MAIN_DIR)/src/bootloader/src/partinfo-inc.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/loadfat-inc.asm $(BUILD_DIR)
