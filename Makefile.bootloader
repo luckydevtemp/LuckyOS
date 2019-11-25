@@ -50,7 +50,7 @@ STAGE1_OPTIONS := -f bin -o stage1.bin -d STAGE1_SECTORS=$(STAGE1_SECTORS)
 
 # Geral
 
-all: stage0 stage1
+all: stage0 stage1 stage2
 
 
 # Estagios
@@ -64,9 +64,8 @@ stage1: _stage1_files
 	$(ASSEMBLER) $(STAGE1_OPTIONS) $(STAGE1_SOURCE)
 	$(ASSEMBLER) $(STAGE1_OPTIONS) -d CRC_32=0x$$(crc32 stage1.bin) $(STAGE1_SOURCE)
 
-
-
-
+stage2:
+	dd if=/dev/zero of=boot.bin bs=291 count=1
 
 
 
@@ -97,3 +96,5 @@ _stage1_files: _common_files
 	ln -s $(MAIN_DIR)/src/bootloader/src/initpartinfo-inc.asm $(BUILD_DIR)
 	ln -s $(MAIN_DIR)/src/bootloader/src/partinfo-inc.asm $(BUILD_DIR)
 	ln -s $(MAIN_DIR)/src/bootloader/src/loadfat-inc.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/searchfile-inc.asm $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/fileinfo-inc.asm $(BUILD_DIR)

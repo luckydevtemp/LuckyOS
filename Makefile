@@ -145,7 +145,7 @@ boot.img: _FORCE
 	mkfs -t fat -R $(RESERVED_SECTORS) -n LOSBOOTDISK $(MAIN_DIR)/boot.img
 
 
-install_boot : install_vbr install_stage1
+install_boot : install_vbr install_stage1 install_stage2
 
 install_vbr: bootloader boot.img
 	@echo "\n### Instalando VBR ###\n"
@@ -158,6 +158,11 @@ install_stage1: bootloader boot.img
 	@echo "\n### Instalando STAGE 1 ###\n"
 	dd if=$(MAIN_DIR)/stage1.bin of=$(MAIN_DIR)/boot.img bs=512 seek=1 count=$(STAGE1_SECTORS) conv=notrunc
 
+install_stage2: bootloader _imagetemp
+	@echo "\n### Instalando STAGE 2 ###\n"
+	sudo cp	boot.bin $(IMGTEMP_DIR)
+	sudo umount $(IMGTEMP_DIR)
+
 
 bootloader: submodules _build
 	@echo "\n### Compilando BOOTLOADER ###\n"
@@ -165,6 +170,7 @@ bootloader: submodules _build
 	@$(MAKE) -C $(BUILD_DIR)
 	cp $(BUILD_DIR)/stage0.bin .
 	cp $(BUILD_DIR)/stage1.bin .
+	cp $(BUILD_DIR)/boot.bin .
 
 
 # Kernel
