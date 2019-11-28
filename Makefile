@@ -160,7 +160,7 @@ install_stage1: bootloader boot.img
 
 install_stage2: bootloader _imagetemp
 	@echo "\n### Instalando STAGE 2 ###\n"
-	sudo cp	boot.bin $(IMGTEMP_DIR)
+	sudo cp	stage2.bin $(IMGTEMP_DIR)
 	sudo umount $(IMGTEMP_DIR)
 
 
@@ -170,7 +170,7 @@ bootloader: submodules _build
 	@$(MAKE) -C $(BUILD_DIR)
 	cp $(BUILD_DIR)/stage0.bin .
 	cp $(BUILD_DIR)/stage1.bin .
-	cp $(BUILD_DIR)/boot.bin .
+	cp $(BUILD_DIR)/stage2.bin .
 
 
 # Kernel

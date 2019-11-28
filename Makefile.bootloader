@@ -34,8 +34,31 @@
 #============================================================================
 
 
-
 # Variaveis usadas pelo NASM #
+ASSEMBLER_OPTIONS := -f elf32
+
+# Variaveis usadas no FPC #
+
+# Opcoes
+#
+# -n        - ignora arquivo de configuracao padrao
+# @fpc.cfg  - informa um arquivo de configuracao
+# -Xd       - ignora bibliotecas padrao (crosscompiler!)
+# -Aelf     - forca a sempre criar arquivos objetos formato elf
+# -Tlinux   - compila formato para linux (mais limpo)
+COMPILER_OPTIONS := -n @$(BUILD_DIR)/fpc.cfg -Xd -Aelf -Tlinux
+
+# Variaveis usadas pelo LINKER #
+LINKER_OPTIONS = -T $(BUILD_DIR)/ld.cfg -Map stage2.map
+
+
+# Simbolos definidos para compilação condicional de partes compartilhadas
+# entre o Kernel e aplicações
+COMPILER_SYMBOLS = -dKERNEL
+#COMPILER_SYMBOLS = -dLOADER
+
+
+# Outras variaveis usadas pelo NASM #
 STAGE0_SOURCE := vbr-fat.asm
 STAGE1_SOURCE := stage1.asm
 
@@ -43,9 +66,20 @@ STAGE0_OPTIONS := -f bin -o stage0.bin -d STAGE1_SECTORS=$(STAGE1_SECTORS)
 STAGE1_OPTIONS := -f bin -o stage1.bin -d STAGE1_SECTORS=$(STAGE1_SECTORS)
 
 
+# Dependencias
+
+LIBS_DEPS = fpc-rtl systemlibs stdlibs corelibs drivers driverslibs
+#kernelmain       libs16
+
+LINKER_DEPS = stage2.o grosstty.o system.o sysutils.o syscalls.o errorsdef.o\
+  stdlib.o stdio.o consoleio.o debuginfo.o tinystrscanner.o\
+  corelib.o systemcalls.o filesystem.o grosscrt.o
+
+
+
 # Phony
 
-.PHONY: all stage0 stage1 _common_files _stage0_files _stage1_files
+.PHONY: all stage0 stage1 stage2 _common_files _stage0_files _stage1_files _stage2_files
 
 
 # Geral
@@ -64,9 +98,8 @@ stage1: _stage1_files
 	$(ASSEMBLER) $(STAGE1_OPTIONS) $(STAGE1_SOURCE)
 	$(ASSEMBLER) $(STAGE1_OPTIONS) -d CRC_32=0x$$(crc32 stage1.bin) $(STAGE1_SOURCE)
 
-stage2:
-	dd if=/dev/zero of=boot.bin bs=291 count=1
-
+stage2: stage2.o stage2w.o
+	$(LINKER) $(LINKER_OPTIONS) $(LINKER_DEPS)
 
 
 
@@ -100,3 +133,62 @@ _stage1_files: _common_files
 	ln -s $(MAIN_DIR)/src/bootloader/src/fileinfo-inc.asm $(BUILD_DIR)
 	ln -s $(MAIN_DIR)/src/bootloader/src/loadfile-inc.asm $(BUILD_DIR)
 	ln -s $(MAIN_DIR)/src/bootloader/src/readfatentry-inc.asm $(BUILD_DIR)
+
+_stage2_files: _common_files
+	ln -s $(MAIN_DIR)/src/bootloader/src/stage2.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/fpc.cfg $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/ld.cfg $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/bootloader/src/stage2w.asm $(BUILD_DIR)
+
+stage2.o: _stage2_files $(LIBS_DEPS)
+	$(COMPILER) $(COMPILER_OPTIONS) $(COMPILER_SYMBOLS) stage2.pas
+
+stage2w.o: _stage2_files
+	$(ASSEMBLER) $(ASSEMBLER_OPTIONS) stage2w.asm
+
+
+
+# Dependendias
+
+fpc-rtl:
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/system.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_external.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_generalh.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_integerh.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_shortstrh.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_pcharh.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_generalf.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_errormanagerf.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_shortstrf.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_general.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_integer.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_shortstr.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_pchar.inc $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/fpc_system_errormanager.inc $(BUILD_DIR)
+
+	ln -s $(MAIN_DIR)/src/libs/fpc-rtl/src/sysutils.pas $(BUILD_DIR)
+
+systemlibs:
+	ln -s $(MAIN_DIR)/src/libs/system/src/syscalls.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/system/src/syscallsdef.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/system/src/systemdef.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/system/src/errorsdef.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/system/src/ttysdef.pas $(BUILD_DIR)
+
+stdlibs:
+	ln -s $(MAIN_DIR)/src/libs/stdlibs/src/stdlib.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/stdlibs/src/stdio.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/stdlibs/src/consoleio.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/stdlibs/src/debuginfo.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/stdlibs/src/tinystrscanner.pas $(BUILD_DIR)
+
+corelibs:
+	ln -s $(MAIN_DIR)/src/libs/core/src/corelib.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/core/src/systemcalls.pas $(BUILD_DIR)
+	ln -s $(MAIN_DIR)/src/libs/core/src/filesystem.pas $(BUILD_DIR)
+
+drivers:
+	ln -s $(MAIN_DIR)/src/drivers/grosstty/grosstty.pas $(BUILD_DIR)
+
+driverslibs:
+	ln -s $(MAIN_DIR)/src/libs/drivers/grosscrt/grosscrt.pas $(BUILD_DIR)
