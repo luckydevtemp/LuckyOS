@@ -1,3 +1,9 @@
+################################################################################
+
+                  LuckyOS Universal Format - LUF
+
+################################################################################
+
 A ideia é criar um formato de arquivo padronizado para todos os arquivos binários,
 de forma que eles sejam únicos e identificaveis para o sistema. Tipo um MZ do DOS...
 
@@ -8,36 +14,37 @@ haverá suporte a outros FSs.
 Todo arquivo binário será composto por:
 
 
-==================================
+========================================
 
-              Header
+                Header
 
-----------------------------------
+----------------------------------------
 
-              Dados
+                Dados
 
-==================================
+========================================
 
 
 O header terá uma parte padrão que identificará o seu tamanho, tipo e assinatura.
 Todos os arquivos serão assinados e gerarão erro se a assinatura não coincidir.
 
 A assinatura terá funcão de verificação de erros, não a de garantir que o arquivo
-foi modificado acidentalmente, embora isso possa ser implementado futuramente, mas
+foi modificado intencionalmente, embora isso possa ser implementado futuramente, mas
 não é o foco. O foco é que possa ser indentificado um arquivo corrompido.
+
 
 
 Header:
 
-==================================
+========================================
 
-      Header Básico (Comum)
+        Header Básico (Comum)
 
-----------------------------------
+----------------------------------------
 
-  Header Extendido (Dependente)
+    Header Extendido (Dependente)
 
-==================================
+========================================
 
 O Header Extendido, depende do formato do arquivo em específico, ou seja, se é uma
 partição, uma biblioteca, etc...
@@ -45,21 +52,34 @@ partição, uma biblioteca, etc...
 
 Header Básico:
 
+O header básico define o envolucro do arquivo, não o seu conteúdo.
 
-==================================
-Assinatura (DWord) SizeD:
-  LOS1  = Small   = 16 => 64 kiB
-  LOS2  = Default = 32 =>  4 GiB
-  LOS3  = Big     = 64 => 16 EiB
-----------------------------------
-  Tamanho do cabeçalho      (SizeD)
-----------------------------------
-  Tamanho do identificador  (Byte)
-  Tipo de hash              (Byte)
-----------------------------------
+========================================
+  Magic (LUF)                         3B
+----------------------------------------
+  Flags:                              1B
 
+    0-2 = *Tamanho dos campos (x2)    3b
+    3-6 = Reservado (0)               4b
+    7   = Little Endian               1b
+----------------------------------------
+  **Tipo de hash                      1B
 
-==================================
+    0-3 = Cabeçalho                   4b
+    4-7 = Arquivo                     4b
+----------------------------------------
+  ***Tamanho do identificador         1B
+----------------------------------------
+  Tamanho do cabeçalho*               xB
+----------------------------------------
+  Tamanho do arquivo*                 xB
+----------------------------------------
+  Hash cabeçalho**                    xB
+----------------------------------------
+  Hash arquivo**                      xB
+----------------------------------------
+  Identificador***                    xB
+========================================
 
 
 
