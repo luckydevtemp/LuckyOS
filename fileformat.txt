@@ -1,0 +1,65 @@
+A ideia é criar um formato de arquivo padronizado para todos os arquivos binários,
+de forma que eles sejam únicos e identificaveis para o sistema. Tipo um MZ do DOS...
+
+O formato deve permitir o uso para qualquer função desde arquivos pequenos até
+partições gigantes. Já que a ideia é que todo o sistema seja criado do zero, embora
+haverá suporte a outros FSs.
+
+Todo arquivo binário será composto por:
+
+
+==================================
+
+              Header
+
+----------------------------------
+
+              Dados
+
+==================================
+
+
+O header terá uma parte padrão que identificará o seu tamanho, tipo e assinatura.
+Todos os arquivos serão assinados e gerarão erro se a assinatura não coincidir.
+
+A assinatura terá funcão de verificação de erros, não a de garantir que o arquivo
+foi modificado acidentalmente, embora isso possa ser implementado futuramente, mas
+não é o foco. O foco é que possa ser indentificado um arquivo corrompido.
+
+
+Header:
+
+==================================
+
+      Header Básico (Comum)
+
+----------------------------------
+
+  Header Extendido (Dependente)
+
+==================================
+
+O Header Extendido, depende do formato do arquivo em específico, ou seja, se é uma
+partição, uma biblioteca, etc...
+
+
+Header Básico:
+
+
+==================================
+Assinatura (DWord) SizeD:
+  LOS1  = Small   = 16 => 64 kiB
+  LOS2  = Default = 32 =>  4 GiB
+  LOS3  = Big     = 64 => 16 EiB
+----------------------------------
+  Tamanho do cabeçalho      (SizeD)
+----------------------------------
+  Tamanho do identificador  (Byte)
+  Tipo de hash              (Byte)
+----------------------------------
+
+
+==================================
+
+
+

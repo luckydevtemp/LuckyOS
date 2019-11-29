@@ -160,7 +160,7 @@ install_stage1: bootloader boot.img
 
 install_stage2: bootloader _imagetemp
 	@echo "\n### Instalando STAGE 2 ###\n"
-	sudo cp	stage2.bin $(IMGTEMP_DIR)
+	sudo cp	stage2.bin $(IMGTEMP_DIR)/boot.bin
 	sudo umount $(IMGTEMP_DIR)
 
 
