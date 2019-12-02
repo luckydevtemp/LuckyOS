@@ -98,8 +98,19 @@ stage1: _stage1_files
 	$(ASSEMBLER) $(STAGE1_OPTIONS) $(STAGE1_SOURCE)
 	$(ASSEMBLER) $(STAGE1_OPTIONS) -d CRC_32=0x$$(crc32 stage1.bin) $(STAGE1_SOURCE)
 
-stage2: stage2.o stage2w.o
+stage2: _stage2_files $(LIBS_DEPS)
+	$(COMPILER) $(COMPILER_OPTIONS) $(COMPILER_SYMBOLS) stage2.pas
+
+	$(ASSEMBLER) $(ASSEMBLER_OPTIONS) stage2w.asm
 	$(LINKER) $(LINKER_OPTIONS) $(LINKER_DEPS)
+
+	$(ASSEMBLER) $(ASSEMBLER_OPTIONS) -d FILE_SIZE=$$(du -b stage2.bin | cut -f1)  stage2w.asm
+	$(LINKER) $(LINKER_OPTIONS) $(LINKER_DEPS)
+
+	echo 0x$$(crc32 stage2.bin)
+	$(ASSEMBLER) $(ASSEMBLER_OPTIONS) -d FILE_SIZE=$$(du -b stage2.bin | cut -f1) -d FILE_CRC32=0x$$(crc32 stage2.bin) stage2w.asm
+	$(LINKER) $(LINKER_OPTIONS) $(LINKER_DEPS)
+
 
 
 
@@ -139,12 +150,6 @@ _stage2_files: _common_files
 	ln -s $(MAIN_DIR)/src/bootloader/src/fpc.cfg $(BUILD_DIR)
 	ln -s $(MAIN_DIR)/src/bootloader/src/ld.cfg $(BUILD_DIR)
 	ln -s $(MAIN_DIR)/src/bootloader/src/stage2w.asm $(BUILD_DIR)
-
-stage2.o: _stage2_files $(LIBS_DEPS)
-	$(COMPILER) $(COMPILER_OPTIONS) $(COMPILER_SYMBOLS) stage2.pas
-
-stage2w.o: _stage2_files
-	$(ASSEMBLER) $(ASSEMBLER_OPTIONS) stage2w.asm
 
 
 
