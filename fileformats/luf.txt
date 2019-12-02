@@ -38,11 +38,11 @@ Header:
 
 ========================================
 
-        Header Básico (Comum)
+            Header Comum
 
 ----------------------------------------
 
-    Header Extendido (Dependente)
+          Header Extendido
 
 ========================================
 
@@ -50,9 +50,9 @@ O Header Extendido, depende do formato do arquivo em específico, ou seja, se é
 partição, uma biblioteca, etc...
 
 
-Header Básico:
+Header Comum:
 
-O header básico define o envolucro do arquivo, não o seu conteúdo.
+O header Comum (básico) define o envolucro do arquivo, não o seu conteúdo.
 
 ========================================
   Magic (LUF)                         3B
@@ -70,16 +70,46 @@ O header básico define o envolucro do arquivo, não o seu conteúdo.
 ----------------------------------------
   ***Tamanho do identificador         1B
 ----------------------------------------
-  Tamanho do cabeçalho*               xB
+  Tamanho do header*                  xB
 ----------------------------------------
   Tamanho do arquivo*                 xB
 ----------------------------------------
-  Hash cabeçalho**                    xB
+  Hash header**                       xB
 ----------------------------------------
   Hash arquivo**                      xB
 ----------------------------------------
   Identificador***                    xB
 ========================================
 
+  - O Magic (LUF) identifica sendo um arquivo padrão do sistema.
 
+  - As Flags definem caracteristicas básicas do arquivo:
 
+    - Little Endian: define se os campos numericos do header são Little ou Big Endian;
+
+    - Tamanho do campos: define o tamanho dos campos em Words (16 bits).
+
+  - Tipo de Hash. Define o tipo de hash e, consequentemente, o tamanho dos campos de hash
+    do header e do arquivo:
+
+      0 - Nenhum hash;
+
+      1 - CRC32.
+
+  - Tamanho do identificador. define o tamanho do campo IDENTIFICADOR em bytes.
+
+  - Tamanho do header. Indica o tamanho do header (comum e extendido) em bytes.
+    O tamanho desse campo depende do tamanho dos campos definido em Flags.
+
+  - Tamanho do arquivo. Indica o tamanho total do arquivo em bytes.
+    O tamanho desse campo depende do tamanho dos campos definido em Flags.
+
+  - Hash header. Indica o hash do header (comum e extendido).
+    O tamanho desse campo depende do tipo de hash usado.
+
+  - Hash do arquivo. Indica o hash do arquivo inteiro.
+    O tamanho desse campo depende do tipo de hash usado.
+
+  - Identificador. Indica o identificador do tipo do arquivo.
+    Este campo identifica o tipo do arquivo e do header extendido.
+    Cada tipo de arquivo será identificado num arquivo diferente.
