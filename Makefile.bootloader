@@ -144,7 +144,6 @@ _stage1_files: _common_files
 	ln -s $(MAIN_DIR)/src/bootloader/src/fileinfo-inc.asm $(BUILD_DIR)
 	ln -s $(MAIN_DIR)/src/bootloader/src/loadfile-inc.asm $(BUILD_DIR)
 	ln -s $(MAIN_DIR)/src/bootloader/src/readfatentry-inc.asm $(BUILD_DIR)
-	ln -s $(MAIN_DIR)/src/bootloader/src/inc/readlba2-inc.asm $(BUILD_DIR)
 	ln -s $(MAIN_DIR)/src/bootloader/src/inc/readchs2-inc.asm $(BUILD_DIR)
 
 _stage2_files: _common_files
