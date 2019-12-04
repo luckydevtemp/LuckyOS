@@ -169,8 +169,11 @@ bootloader: submodules _build
 	ln -s $(MAIN_DIR)/Makefile.bootloader -T $(BUILD_DIR)/Makefile
 	@$(MAKE) -C $(BUILD_DIR)
 	cp $(BUILD_DIR)/stage0.bin .
+	cp $(BUILD_DIR)/stage0.map .
 	cp $(BUILD_DIR)/stage1.bin .
+	cp $(BUILD_DIR)/stage1.map .
 	cp $(BUILD_DIR)/stage2.bin .
+	cp $(BUILD_DIR)/stage2.map .
 
 
 # Kernel
