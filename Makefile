@@ -36,23 +36,23 @@
 
 ## Configurações gerais ##
 ASSEMBLER_NAME = nasm
-COMPILER_NAME = ppc386
 LINKER_NAME = ld
-
-COMPILER_VERSIONR = 2.4.4
-
-
-# Tools #
-ASSEMBLER = $(shell which $(ASSEMBLER_NAME))
-COMPILER = $(shell which $(COMPILER_NAME))
-LINKER = $(shell which $(LINKER_NAME))
-
-export ASSEMBLER COMPILER LINKER
+# O compilador usado é o da toolchain
 
 MAIN_DIR := $(CURDIR)
 BUILD_DIR := $(MAIN_DIR)/build
+TOOLS_DIR := $(MAIN_DIR)/tools
 
-export MAIN_DIR BUILD_DIR
+export MAIN_DIR BUILD_DIR TOOLS_DIR
+
+# Tools #
+ASSEMBLER = $(shell which $(ASSEMBLER_NAME))
+LINKER = $(shell which $(LINKER_NAME))
+
+COMPILER := $(TOOLS_DIR)/ppc386
+
+export ASSEMBLER COMPILER LINKER
+
 
 
 ## Checagens ##
@@ -62,29 +62,6 @@ ifeq ("$(ASSEMBLER)", "")
 assembler_error:
 	@echo >&2
 	@echo >&2 "Não foi possível detectar o assembler: $(ASSEMBLER_NAME)"
-	@echo >&2
-	@exit 1
-endif
-
-# Compiler
-ifeq ("$(COMPILER)", "")
-compiler_error:
-	@echo >&2
-	@echo >&2 "Não foi possível detectar o compilador: $(COMPILER_NAME)"
-	@echo >&2
-	@exit 1
-endif
-
-ifneq ("$(COMPILER)", "")
-  COMPILER_VERSION = $(shell $(COMPILER) -iV)
-endif
-
-ifneq ("$(COMPILER_VERSION)", "$(COMPILER_VERSIONR)")
-compiler_version_error:
-	@echo >&2
-	@echo >&2 "Versão incorreta do compilador:"
-	@echo >&2 "Encontrada: $(COMPILER_VERSION)"
-	@echo >&2 "Requerida: $(COMPILER_VERSIONR)"
 	@echo >&2
 	@exit 1
 endif
@@ -101,7 +78,7 @@ endif
 
 # Phony
 
-.PHONY: all clean distclean kernel _build
+.PHONY: all clean distclean toolchain kernel _build
 
 
 # Geral
@@ -119,10 +96,21 @@ submodules:
 	git submodule init
 	git submodule update
 
+toolchain: submodules $(TOOLS_DIR)/toolchain-build-stamp
+	
+	
+# Toolchain
+
+$(TOOLS_DIR)/toolchain-build-stamp:
+	@echo
+	@echo "Construindo o Toolchain..."
+	@echo
+	@$(MAKE) -C $(TOOLS_DIR)
+
 
 # Kernel
 
-kernel: _build
+kernel: _build toolchain
 	ln -s $(MAIN_DIR)/Makefile.kernel -T $(BUILD_DIR)/Makefile
 	@$(MAKE) -C $(BUILD_DIR)
 	cp $(BUILD_DIR)/kernel.bin .
