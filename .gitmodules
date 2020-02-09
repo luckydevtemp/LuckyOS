@@ -25,3 +25,6 @@
 [submodule "src/libs/core"]
 	path = src/libs/core
 	url = https://github.com/luckyosproject/los-corelibs.git
+[submodule "tools"]
+	path = tools
+	url = https://github.com/luckyosproject/los-toolchain.git
